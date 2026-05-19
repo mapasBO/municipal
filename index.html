@@ -40,7 +40,7 @@ select{padding:4px 8px;border:1.5px solid #1565C0;border-radius:6px;
 .map-wrap{position:relative;flex:1;min-height:0}
 #map-svg{width:100%;height:100%;border-radius:8px;background:#C8DFF0;
   display:block}
-#map-svg path.mun{stroke:#546E7A;stroke-width:0.35;transition:fill .25s;cursor:pointer}
+#map-svg path.mun{stroke:#546E7A;stroke-width:0.2;transition:fill .25s;cursor:pointer}
 #map-svg path.mun:hover{stroke:#212121;stroke-width:1.4;filter:brightness(.85)}
 #map-svg path.mun.highlighted{stroke:#FFD600;stroke-width:2}
 #map-svg path.mun.dpto-selected{stroke:#FF6F00;stroke-width:1.2}
@@ -177,10 +177,6 @@ select{padding:4px 8px;border:1.5px solid #1565C0;border-radius:6px;
   <select id="ind-sel" onchange="updateMap()">
     <option value="0">-- Por Departamento --</option>
     <option value="1">Indicador 1 &mdash; Poblacion</option>
-    <option value="2">Indicador 2 &mdash; IDH</option>
-    <option value="3">Indicador 3 &mdash; Pobreza %</option>
-    <option value="4">Indicador 4 &mdash; Educacion %</option>
-    <option value="5">Indicador 5 &mdash; Salud</option>
   </select>
   <div class="sep"></div>
   <button class="btn btn-orange" onclick="document.getElementById('csv-in').click()">
@@ -952,12 +948,14 @@ async function doExport(){
   let tX=0,tY=0,tScale=1,MAP_W,MAP_H;
   if(exportDpto){
     const bb=munsBBox(munsToDraw);
-    const PB=22;
+    const PB=6;
     const bX=bb.minX-PB,bY=bb.minY-PB,bW=bb.w+PB*2,bH=bb.h+PB*2;
-    tScale=Math.min(560/bW,600/bH);
-    tX=-bX*tScale+(560-bW*tScale)/2;
-    tY=-bY*tScale+(600-bH*tScale)/2;
-    MAP_W=Math.round(bW*tScale)+40;MAP_H=Math.round(bH*tScale)+40;
+    // Fijar MAP_W y MAP_H constantes para que el dpto siempre llene el cuadro
+    MAP_W=580; MAP_H=630;
+    // Escalar el bbox para que encaje EXACTAMENTE en ese espacio con margen mínimo
+    tScale=Math.min((MAP_W-16)/bW,(MAP_H-16)/bH);
+    tX=-bX*tScale+(MAP_W-bW*tScale)/2;
+    tY=-bY*tScale+(MAP_H-bH*tScale)/2;
   } else {
     MAP_W=580;MAP_H=630;tX=0;tY=0;tScale=1;
   }
@@ -1002,8 +1000,8 @@ async function doExport(){
     const path=new Path2D(m.d);
     const isMunDpto=!exportDpto||m.dpto===exportDpto;
     ctx.fillStyle=isMunDpto?clr:'rgba(190,205,215,0.35)';
-    ctx.strokeStyle=isMunDpto?'rgba(70,90,100,0.5)':'rgba(100,120,130,0.2)';
-    ctx.lineWidth=0.3/tScale;
+    ctx.strokeStyle=isMunDpto?'rgba(70,90,100,0.45)':'rgba(100,120,130,0.15)';
+    ctx.lineWidth=0.15/tScale;
     ctx.fill(path);ctx.stroke(path);
   });
 
